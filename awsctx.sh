@@ -1,6 +1,7 @@
 #!/bin/bash
 
 AWSCTX="${XDG_CACHE_HOME:-$HOME/.aws}/awsctx"
+AWS_ACCOUNT_CODE_DEV="699158113629"
 
 _awsctx_usage() {
   cat <<"EOF"
@@ -38,6 +39,18 @@ _awsctx_set_profile() {
   fi
 }
 
+_awsctx_switched_banner() {
+  account_code=`aws sts get-caller-identity --query "Account" --output text`
+  if [[ "${account_code}" == "${AWS_ACCOUNT_CODE_DEV}" ]]; then
+    echo ""
+  else
+    echo " __  __  __  __  "
+    echo "|__)|__)/  \|  \ "
+    echo "|   | \ \__/|__/ "
+    echo ""
+  fi
+}
+
 _awsctx_list_profiles() {
   local cmd
   cmd="$(_awsctx_get_fzf_command)"
@@ -54,9 +67,10 @@ _awsctx_choose_profile_interactive() {
   local choice fzf_command
   fzf_command="$(_awsctx_get_fzf_command)"
   choice=`FZF_DEFAULT_COMMAND="${fzf_command}" fzf --ansi`
-   if [[ -n "${choice}" ]]; then
+  if [[ -n "${choice}" ]]; then
     _awsctx_set_profile "${choice}"
-   fi
+    _awsctx_switched_banner
+  fi
 }
 
 
